@@ -227,7 +227,60 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
           Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        finalState = self.alphabeta(gameState,0,0,-9999999999,9999999999)
+
+        # print "complete alphabeta-------------------------------------", finalState
+        return finalState[1]
+    def alphabeta(self,gameState,depth,agentIndex,a,b):
+        # print "the", depth, "ply"
+        totalAgent = gameState.getNumAgents()
+        if depth == self.depth:
+              # print "call evaluationFunction: ", (self.evaluationFunction(gameState),'Stop')
+              return (self.evaluationFunction(gameState),'Stop')
+        else:
+              if agentIndex == 0:
+                    # print "now pacman"
+                    legalMoves = gameState.getLegalActions(agentIndex)
+                    # print "legalmoves:", legalMoves
+                    if len(legalMoves)==0:
+                          # print "call evaluationFunction: ", (self.evaluationFunction(gameState),'Stop')
+                          return (self.evaluationFunction(gameState),'Stop')
+                    v = (-9999999999,'Stop')
+                    for action in legalMoves:
+                          v = max(v,(self.alphabeta(gameState.generateSuccessor(agentIndex, action),depth,(agentIndex+1)%totalAgent,a,b)[0],action))
+                          if v[0] >= b:
+                                return v
+                          a = max(a,v[0])
+                    return v
+              elif agentIndex != totalAgent-1:
+                    # print "now the ghost", agentIndex
+                    legalMoves = gameState.getLegalActions(agentIndex)
+                    # print "legalmoves:", legalMoves
+                    if len(legalMoves)==0:
+                          # print "call evaluationFunction: ", (self.evaluationFunction(gameState),'Stop')
+                          return (self.evaluationFunction(gameState),'Stop')
+                    v = (9999999999,'Stop')
+                    for action in legalMoves:
+                          v = min(v,(self.alphabeta(gameState.generateSuccessor(agentIndex, action),depth,(agentIndex+1)%totalAgent,a,b)[0],action))
+                          if a >= v[0]:
+                                return v
+                          b = min(b,v[0])
+                    return v
+              else:
+                    # print "now the last ghost"
+                    legalMoves = gameState.getLegalActions(agentIndex)
+                    # print "legalmoves:", legalMoves
+                    if len(legalMoves)==0:
+                          # print "call evaluationFunction: ", (self.evaluationFunction(gameState),'Stop')
+                          return (self.evaluationFunction(gameState),'Stop')
+                    v = (9999999999,'Stop')
+                    for action in legalMoves:
+                          v = min(v,(self.alphabeta(gameState.generateSuccessor(agentIndex, action),depth+1,(agentIndex+1)%totalAgent,a,b)[0],action))
+                          if a >= v[0]:
+                                return v
+                          b = min(b,v[0])
+                    return v
+         
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
