@@ -74,7 +74,56 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
+
+        # print "successorGameState: ", successorGameState
+        # print "newPos: ", newPos
+        # print "newFood:\n", newFood    #newFood : grid
+        # print "newGhostPosition:", newGhostStates[0]
+        # print "newScaredTimes:", newScaredTimes[0]
+        
+        evaluation = 0
+        ghost = []
+        food = []
+        distance = 0
+        position = (0,0)
+        longest = newFood.height + newFood.width
+
+        if newPos in currentGameState.getCapsules():
+              return 10000
+        if currentGameState.getFood()[newPos[0]][newPos[1]]:
+              # print "enter"
+              return 10000
+        for ghostState in newGhostStates:
+              position = ghostState.getPosition()
+              distance = manhattanDistance(newPos,position)
+              # print newScaredTimes[0]
+              if newScaredTimes[0] > distance:
+                    # print "enter"
+                    ghost.append(-distance)
+              else:
+                    ghost.append(distance)
+        
+        for x in range(newFood.width):
+              for y in range(newFood.height):
+                    if newFood[x][y] == True:
+                          food.append(manhattanDistance(newPos,(x,y)))
+
+        if len(food) == 0:
+              food.append(max(ghost)+1)
+              
+        if min(ghost) < 0:
+              evaluation = 10000+1.0/(-min(ghost)+1)
+        else:
+              nearghost = min(ghost)
+              nearfood = min(food)
+              evaluation = 1.0/(nearfood+1)
+              if nearghost < 15:
+                    # print ghost
+                    evaluation = -100.0/(nearghost+1) + 1/(nearfood+1)
+                    # print evaluation
+
+        # print evaluation
+        return evaluation
 
 def scoreEvaluationFunction(currentGameState):
     """
