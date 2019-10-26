@@ -295,8 +295,60 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        finalState = self.expectimax(gameState,0,0)
 
+        # print "complete expectimax-------------------------------------", finalState
+        return finalState[1]
+    def expectimax(self,gameState,depth,agentIndex):
+        # print "the", depth, "ply"
+        totalAgent = gameState.getNumAgents()
+        if depth == self.depth:
+              # print "call evaluationFunction: ", (self.evaluationFunction(gameState),'Stop')
+              return (self.evaluationFunction(gameState),'Stop')
+        else:
+              if agentIndex == 0:
+                    # print "now pacman"
+                    legalMoves = gameState.getLegalActions(agentIndex)
+                    # print "legalmoves:", legalMoves
+                    if len(legalMoves)==0:
+                          # print "call evaluationFunction: ", (self.evaluationFunction(gameState),'Stop')
+                          return (self.evaluationFunction(gameState),'Stop')
+                    return max((self.expectimax(gameState.generateSuccessor(agentIndex, action),depth,(agentIndex+1)%totalAgent)[0],action) for action in legalMoves)
+              elif agentIndex != totalAgent-1:
+                    # print "now the ghost", agentIndex
+                    legalMoves = gameState.getLegalActions(agentIndex)
+                    # print "legalmoves:", legalMoves
+                    if len(legalMoves)==0:
+                          # print "call evaluationFunction: ", (self.evaluationFunction(gameState),'Stop')
+                          return (self.evaluationFunction(gameState),'Stop')
+                    children = [(self.expectimax(gameState.generateSuccessor(agentIndex, action),depth,(agentIndex+1)%totalAgent)[0],action) for action in legalMoves]
+                    totalevaluation = 0
+                    for child in children:
+                          totalevaluation += child[0]
+                    expectation = totalevaluation/len(children)
+                    index = self.findnearest(expectation,children)
+                    return (expectation,children[index][1])
+              else:
+                    # print "now the last ghost"
+                    legalMoves = gameState.getLegalActions(agentIndex)
+                    # print "legalmoves:", legalMoves
+                    if len(legalMoves)==0:
+                          # print "call evaluationFunction: ", (self.evaluationFunction(gameState),'Stop')
+                          return (self.evaluationFunction(gameState),'Stop')
+                    children = [(self.expectimax(gameState.generateSuccessor(agentIndex, action),depth+1,(agentIndex+1)%totalAgent)[0],action) for action in legalMoves]
+                    totalevaluation = 0
+                    for child in children:
+                          totalevaluation += child[0]
+                    expectation = totalevaluation/len(children)
+                    index = self.findnearest(expectation,children)
+                    # print "children[index]: ", children[index]
+                    return (expectation,children[index][1])
+    def findnearest(self,element,list):
+        temp = []
+        for i in range(len(list)):
+              temp.append(abs(list[i][0]-element)) 
+        return temp.index(min(temp))                      
+                                  
 def betterEvaluationFunction(currentGameState):
     """
       Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
