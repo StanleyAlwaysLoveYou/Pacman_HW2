@@ -178,7 +178,44 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        finalState = self.minimax(gameState,0,0)
+
+        # print "complete minimax-------------------------------------", finalState
+        return finalState[1]
+
+    def minimax(self,gameState,depth,agentIndex):
+        # print "the", depth, "ply"
+        totalAgent = gameState.getNumAgents()
+        if depth == self.depth:
+              # print "call evaluationFunction: ", (self.evaluationFunction(gameState),'Stop')
+              return (self.evaluationFunction(gameState),'Stop')
+        else:
+              if agentIndex == 0:
+                    # print "now pacman"
+                    legalMoves = gameState.getLegalActions(agentIndex)
+                    # print "legalmoves:", legalMoves
+                    if len(legalMoves)==0:
+                          # print "call evaluationFunction: ", (self.evaluationFunction(gameState),'Stop')
+                          return (self.evaluationFunction(gameState),'Stop')
+                    return max((self.minimax(gameState.generateSuccessor(agentIndex, action),depth,(agentIndex+1)%totalAgent)[0],action) for action in legalMoves)
+              elif agentIndex != totalAgent-1:
+                    # print "now the ghost", agentIndex
+                    legalMoves = gameState.getLegalActions(agentIndex)
+                    # print "legalmoves:", legalMoves
+                    if len(legalMoves)==0:
+                          # print "call evaluationFunction: ", (self.evaluationFunction(gameState),'Stop')
+                          return (self.evaluationFunction(gameState),'Stop')
+                    return min((self.minimax(gameState.generateSuccessor(agentIndex, action),depth,(agentIndex+1)%totalAgent)[0],action) for action in legalMoves)
+              else:
+                    # print "now the last ghost"
+                    legalMoves = gameState.getLegalActions(agentIndex)
+                    # print "legalmoves:", legalMoves
+                    if len(legalMoves)==0:
+                          # print "call evaluationFunction: ", (self.evaluationFunction(gameState),'Stop')
+                          return (self.evaluationFunction(gameState),'Stop')
+                    return min((self.minimax(gameState.generateSuccessor(agentIndex, action),depth+1,(agentIndex+1)%totalAgent)[0],action) for action in legalMoves)
+         
+          
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
