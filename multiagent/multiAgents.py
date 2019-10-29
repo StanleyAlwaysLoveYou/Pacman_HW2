@@ -354,6 +354,10 @@ def betterEvaluationFunction(currentGameState):
             Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
             evaluation function (question 5).
             DESCRIPTION: <write something here so we know what you did>
+            if ghoast is close enough to the pacman(manhatten distance < 2), evaluation = score()+evaluation += -100.0/(nearghost+1)
+            else,  evaluation = -1.0/(nearghost+1.0) + 50.0/(nearscaredghost+1) +50.0/(nearcapsule+1.0) + 10.0/(nearfood+1.0)+score
+
+            near means the nearest object's manhatten distance to pacman
       """
       "*** YOUR CODE HERE ***"
 
@@ -434,15 +438,15 @@ def betterEvaluationFunction(currentGameState):
 
       nearfood = min(food)
 
-      if len(ghost) > 0 and nearghost < 4:
+      if len(ghost) > 0 and nearghost < 2:
             # print "avoid ghost:", nearghost
-            evaluation += -100.0/(nearghost+1) 
+            evaluation += -100.0/(nearghost+1)
             # print evaluation
 
       else:
             # print "nearghost:", nearghost, "nearscaredghost:", nearscaredghost
             # print "nearcapsule:", nearcapsule, "nearfood:", nearfood
-            evaluation = -1.0/(nearghost+1.0) + 100.0/(nearscaredghost+1.0) +60.0/(nearcapsule+1.0) + 10.0/(nearfood+1.0)
+            evaluation = -1.0/(nearghost+1.0) + 50.0/(nearscaredghost+1) +50.0/(nearcapsule+1.0) + 10.0/(nearfood+1.0)
 
       # print "evaluation: ", evaluation
       return currentGameState.getScore() + evaluation
