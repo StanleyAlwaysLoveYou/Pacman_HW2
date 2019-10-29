@@ -295,11 +295,25 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
                   if agentIndex == 0:
                         # print "now pacman"
                         legalMoves = gameState.getLegalActions(agentIndex)
+                        # legalMoves.reverse()
                         # print "legalmoves:", legalMoves
                         if len(legalMoves)==0:
                               # print "call evaluationFunction: ", (self.evaluationFunction(gameState),'Stop')
                               return (self.evaluationFunction(gameState),'Stop')
-                        return max((self.expectimax(gameState.generateSuccessor(agentIndex, action),depth,(agentIndex+1)%totalAgent)[0],action) for action in legalMoves)
+                        templist = [(self.expectimax(gameState.generateSuccessor(agentIndex, action),depth,(agentIndex+1)%totalAgent)[0],action) for action in legalMoves]
+                        # print templist
+                        v = -99999999
+                        index = 0
+                        for i in range(len(templist)):
+                              if templist[i][0] > v:
+                                    v = templist[i][0]
+                                    index = i
+                              if templist[i][0] == v and templist[index][1] == 'Stop':
+                                    v = templist[i][0]
+                                    index = i
+                        temp = templist[index]
+                        # print temp
+                        return temp
                   elif agentIndex != totalAgent-1:
                         # print "now the ghost", agentIndex
                         legalMoves = gameState.getLegalActions(agentIndex)
@@ -336,13 +350,102 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
             return temp.index(min(temp))                      
                                   
 def betterEvaluationFunction(currentGameState):
-    """
-      Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
-      evaluation function (question 5).
-      DESCRIPTION: <write something here so we know what you did>
-    """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+      """
+            Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
+            evaluation function (question 5).
+            DESCRIPTION: <write something here so we know what you did>
+      """
+      "*** YOUR CODE HERE ***"
+
+
+      # successorGameState = currentGameState.generatePacmanSuccessor(currentGameState.getLegalActions(0)[0])
+      # newPos = successorGameState.getPacmanPosition()
+      # newFood = successorGameState.getFood()
+      # newGhostStates = successorGameState.getGhostStates()
+      # newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+
+      # print "successorGameState: ", successorGameState
+      # print "newPos: ", newPos
+      # print "newFood:\n", newFood    #newFood : grid
+      # print "newGhostPosition:", newGhostStates[0]
+      # print "newScaredTimes:", newScaredTimes[0]
+            
+      Pos = currentGameState.getPacmanPosition()
+      Food = currentGameState.getFood()
+      GhostStates = currentGameState.getGhostStates()
+      ScaredTimes = [ghostState.scaredTimer for ghostState in GhostStates]
+      Capsules = currentGameState.getCapsules()
+
+      
+      evaluation = 0
+      food = []
+      ghost = []
+      scaredghost = []
+      capsule = []
+
+      longest = Food.height + Food.width
+      nearfood = 0
+      nearghost = 0
+      nearscaredghost = 0
+      nearcapsule = 0
+
+          
+      distance = 0
+      position = (0,0)
+
+      for ghostState in GhostStates:
+            position = ghostState.getPosition()
+            distance = manhattanDistance(Pos,position)
+            # print newScaredTimes[0]
+            if ScaredTimes[0] > 0:
+                  # print "enter"
+                  scaredghost.append(distance)
+            else:
+                  ghost.append(distance)
+      
+      for x in range(Food.width):
+            for y in range(Food.height):
+                  if Food[x][y] == True:
+                        food.append(manhattanDistance(Pos,(x,y)))
+      for cap in Capsules:
+            capsule.append(manhattanDistance(Pos,cap))
+      
+
+      if len(food) == 0:
+            food.append(0)
+      # print ghost
+      if len(scaredghost) > 0:
+            nearscaredghost = min(scaredghost)
+            # print scaredghost
+      if len(ghost):
+            nearghost = min(ghost)
+      if len(Capsules) > 0:
+            nearcapsule = min(capsule)
+
+      # if Pos in Capsules:
+      #       # print "bingo"
+      #       return 100000
+
+
+      nearfood = min(food)
+      evaluation = 1.0/(nearfood+1)
+      # print "food evaluation: ", evaluation
+      if len(scaredghost) > 0 and nearscaredghost < ScaredTimes[0]:
+                  # print "eat scaredghost:", nearscaredghost
+                  evaluation += 100.0/(nearscaredghost+1)
+      elif len(ghost) > 0 and nearghost < 3:
+            # print "avoid ghost:", nearghost
+            evaluation += -100.0/(nearghost+1) 
+            # print evaluation
+      elif len(Capsules) > 0:
+            if len(ghost) > 0 and nearcapsule < nearghost:
+                  # print "eat capsule:", nearcapsule
+                  evaluation += 10.0/(nearcapsule+1)
+      elif len(ghost) > 0:
+            evaluation == -1.0/(nearghost+1)
+
+      # print evaluation
+      return evaluation
 
 # Abbreviation
 better = betterEvaluationFunction
