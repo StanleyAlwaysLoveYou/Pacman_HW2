@@ -377,7 +377,7 @@ def betterEvaluationFunction(currentGameState):
       Capsules = currentGameState.getCapsules()
 
       
-      evaluation = 0
+      evaluation = 0.0
       food = []
       ghost = []
       scaredghost = []
@@ -411,41 +411,41 @@ def betterEvaluationFunction(currentGameState):
             capsule.append(manhattanDistance(Pos,cap))
       
 
+      scaredghost.append(9999999999999)
+      ghost.append(99999999999)
+      capsule.append(99999999999)
+
+
       if len(food) == 0:
             food.append(0)
       # print ghost
       if len(scaredghost) > 0:
             nearscaredghost = min(scaredghost)
             # print scaredghost
-      if len(ghost):
+      if len(ghost) > 0:
             nearghost = min(ghost)
       if len(Capsules) > 0:
             nearcapsule = min(capsule)
 
       # if Pos in Capsules:
-      #       # print "bingo"
+      #       print "bingo"
       #       return 100000
 
 
       nearfood = min(food)
-      evaluation = 1.0/(nearfood+1)
-      # print "food evaluation: ", evaluation
-      if len(scaredghost) > 0 and nearscaredghost < ScaredTimes[0]:
-                  # print "eat scaredghost:", nearscaredghost
-                  evaluation += 100.0/(nearscaredghost+1)
-      elif len(ghost) > 0 and nearghost < 3:
+
+      if len(ghost) > 0 and nearghost < 4:
             # print "avoid ghost:", nearghost
             evaluation += -100.0/(nearghost+1) 
             # print evaluation
-      elif len(Capsules) > 0:
-            if len(ghost) > 0 and nearcapsule < nearghost:
-                  # print "eat capsule:", nearcapsule
-                  evaluation += 10.0/(nearcapsule+1)
-      elif len(ghost) > 0:
-            evaluation == -1.0/(nearghost+1)
 
-      # print evaluation
-      return evaluation
+      else:
+            # print "nearghost:", nearghost, "nearscaredghost:", nearscaredghost
+            # print "nearcapsule:", nearcapsule, "nearfood:", nearfood
+            evaluation = -1.0/(nearghost+1.0) + 100.0/(nearscaredghost+1.0) +60.0/(nearcapsule+1.0) + 10.0/(nearfood+1.0)
+
+      # print "evaluation: ", evaluation
+      return currentGameState.getScore() + evaluation
 
 # Abbreviation
 better = betterEvaluationFunction
